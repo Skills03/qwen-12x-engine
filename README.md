@@ -96,6 +96,8 @@ about 10–15 tok/s for Qwen 0.5B. `qwen_fast` closes that gap.
 - Qwen 2.5-0.5B / 1.5B / 3B / 7B compatible (tested only 0.5B so far)
 - Windows + Linux (CUDA only, no ROCm yet)
 
+Email: rishabhkharyal4@gmail.com
+
 ## License
 
 `benchmark.py` and the public API: MIT.
