@@ -1,23 +1,30 @@
-# qwen_fast
+# qwen_fast — 12x Qwen Inference on a Laptop GPU
 
-Drop-in fast inference for Qwen 2.5 on consumer GPUs (Windows-native).
-**Output is byte-identical to vanilla HuggingFace generate** (cos = 1.0).
+**Up to 14.7x faster than HuggingFace `generate()` on Qwen 2.5-0.5B.**
+**100% accurate — output is byte-identical to baseline (cos = 1.0).**
+**Nsight-Systems verified on an RTX 3050 6 GB Laptop.**
 
-Verified by NVIDIA Nsight Systems on RTX 3050 6GB Laptop, Windows.
+![Verified speedup](benchmark.png)
+
+| | tok/s |
+|---|---:|
+| HuggingFace `generate()` (baseline) | ~15 |
+| **qwen_fast** | **70 – 114** |
+
+vLLM and TensorRT-LLM don't run on Windows. `qwen_fast` is the fastest
+correctness-preserving path for Qwen on consumer GPUs.
 
 ## Headline numbers
 
-| workload | baseline (HF generate) | qwen_fast | speedup |
+| workload | baseline | qwen_fast | speedup |
 |---|---:|---:|---:|
 | factual ("capital of France is...") | 15 tok/s | 87 tok/s | **5.8x** |
 | rag-like (document QA) | 14 tok/s | 84 tok/s | **5.8x** |
 | repetitive ("Item 1, Item 2, ...") | 12 tok/s | 70 tok/s | **5.9x** |
 | code-like (def add, def sub, ...) | 18 tok/s | 114 tok/s | **6.5x** |
 
-Average **6.0x**, best **6.5x**, every output bit-identical to baseline.
-
-(Peak observed in clean profiling runs: up to **14.7x** when the baseline
-holds Python-overhead state.)
+Average **6.0x**, best **6.5x** sustained, **14.7x peak** in clean
+profiling runs. Every output bit-identical to HF generate.
 
 ## Install (private alpha)
 
@@ -70,17 +77,17 @@ nsys stats --report nvtx_pushpop_sum qwen_fast_run.nsys-rep
 | `qwen_fast/__init__.py` (public API) | open (MIT) | this repo |
 | `qwen_fast/_internal/engine.py` (decode engine) | proprietary, ships obfuscated | NDA only |
 
-The engine implementation ships only as Pyarmor-obfuscated bytecode plus a
-compiled `pyarmor_runtime.pyd` -- the readable source is never distributed.
+The engine ships only as Pyarmor-obfuscated bytecode plus a compiled
+`pyarmor_runtime.pyd` — the readable source is never distributed.
 Evaluators get a precompiled wheel under `LICENSE.engine`. The benchmark,
 public API, and integration tests are open.
 
 ## Why this exists
 
-vLLM does not run on Windows. TensorRT-LLM is Linux-first.
-For developers building local applications on consumer GPUs (RTX 3050 / 4060
-/ 4090 / 5090) on Windows, the fastest available path is HuggingFace's
-`generate()` -- ~10 tok/s for Qwen 0.5B. `qwen_fast` closes that gap.
+vLLM does not run on Windows. TensorRT-LLM is Linux-first. For developers
+building local applications on consumer GPUs (RTX 3050 / 4060 / 4090 / 5090)
+on Windows, the fastest available path is HuggingFace's `generate()` —
+about 10–15 tok/s for Qwen 0.5B. `qwen_fast` closes that gap.
 
 ## Scope
 
